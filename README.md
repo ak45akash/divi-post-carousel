@@ -52,5 +52,3 @@ The module includes extensive design settings that can be adjusted via the Divi 
 ## License
 
 GPL v2 or later 
-
-[divi_post_carousel heading="My Posts" post_type="post" category="1" posts_number="6" slides_to_show="3"] 

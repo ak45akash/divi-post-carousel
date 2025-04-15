@@ -509,9 +509,6 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                     );
                 }
                 
-                // Start slide content container for better layout
-                $output .= '<div class="dpc_slide_content">';
-                
                 // Add category
                 if ('on' === $show_category && !empty($category)) {
                     $output .= sprintf(
@@ -551,7 +548,6 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                     );
                 }
                 
-                $output .= '</div>'; // End .dpc_slide_content
                 $output .= '</div>'; // End .dpc_slide
             }
             
