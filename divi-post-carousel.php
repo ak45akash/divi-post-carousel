@@ -144,6 +144,7 @@ function dpc_render_carousel($atts) {
         'slides_to_scroll' => 1,
         'auto_play' => 'on',
         'auto_play_speed' => 3000,
+        'category' => '',
     ), $atts);
     
     // Query posts
@@ -152,6 +153,31 @@ function dpc_render_carousel($atts) {
         'posts_per_page' => intval($atts['posts_number']),
         'post_status'    => 'publish',
     );
+    
+    // Add category filter if specified
+    if (!empty($atts['category'])) {
+        if ($atts['post_type'] === 'post') {
+            $args['cat'] = intval($atts['category']);
+        } else {
+            // For custom post types, use tax_query
+            $taxonomy = 'category';
+            
+            // Check for custom taxonomies
+            if (taxonomy_exists('category_' . $atts['post_type'])) {
+                $taxonomy = 'category_' . $atts['post_type'];
+            } elseif (taxonomy_exists($atts['post_type'] . '_category')) {
+                $taxonomy = $atts['post_type'] . '_category';
+            }
+            
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => $taxonomy,
+                    'field'    => 'id',
+                    'terms'    => intval($atts['category']),
+                ),
+            );
+        }
+    }
     
     $query = new WP_Query($args);
     
