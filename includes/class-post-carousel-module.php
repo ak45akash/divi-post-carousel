@@ -2,13 +2,31 @@
 /**
  * Post Carousel Module Class
  */
+
+// Exit if accessed directly
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Only proceed if ET_Builder_Module exists (Divi is active)
+if (!class_exists('ET_Builder_Module')) {
+    return;
+}
+
 class Divi_Post_Carousel_Module extends ET_Builder_Module {
+    
+    function __construct() {
+        parent::__construct();
+        $this->init();
+    }
     
     public function init() {
         $this->name       = esc_html__('Post Carousel', 'divi-post-carousel');
         $this->plural     = esc_html__('Post Carousels', 'divi-post-carousel');
         $this->slug       = 'dpc_post_carousel';
         $this->vb_support = 'on';
+        $this->icon               = 'n';
+        $this->icon_font_family   = 'ETmodules';
         
         $this->main_css_element = '%%order_class%%.dpc_post_carousel';
         
@@ -315,6 +333,10 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         $post_types = get_post_types(array('public' => true), 'objects');
         $options = array();
         
+        if (!is_array($post_types)) {
+            return array('post' => 'Post');
+        }
+        
         foreach ($post_types as $post_type) {
             if ($post_type->name !== 'attachment') {
                 $options[$post_type->name] = $post_type->label;
@@ -329,20 +351,20 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
      */
     public function render($attrs, $content = null, $render_slug) {
         // Get attributes
-        $heading = $this->props['heading'];
-        $post_type = $this->props['post_type'];
-        $posts_number = (int) $this->props['posts_number'];
-        $show_image = $this->props['show_image'];
-        $show_title = $this->props['show_title'];
-        $show_excerpt = $this->props['show_excerpt'];
-        $excerpt_length = (int) $this->props['excerpt_length'];
-        $show_category = $this->props['show_category'];
-        $show_button = $this->props['show_button'];
-        $button_text = $this->props['button_text'];
-        $slides_to_show = (int) $this->props['slides_to_show'];
-        $slides_to_scroll = (int) $this->props['slides_to_scroll'];
-        $auto_play = $this->props['auto_play'];
-        $auto_play_speed = (int) $this->props['auto_play_speed'];
+        $heading = isset($this->props['heading']) ? $this->props['heading'] : '';
+        $post_type = isset($this->props['post_type']) ? $this->props['post_type'] : 'post';
+        $posts_number = isset($this->props['posts_number']) ? (int) $this->props['posts_number'] : 6;
+        $show_image = isset($this->props['show_image']) ? $this->props['show_image'] : 'on';
+        $show_title = isset($this->props['show_title']) ? $this->props['show_title'] : 'on';
+        $show_excerpt = isset($this->props['show_excerpt']) ? $this->props['show_excerpt'] : 'on';
+        $excerpt_length = isset($this->props['excerpt_length']) ? (int) $this->props['excerpt_length'] : 100;
+        $show_category = isset($this->props['show_category']) ? $this->props['show_category'] : 'on';
+        $show_button = isset($this->props['show_button']) ? $this->props['show_button'] : 'on';
+        $button_text = isset($this->props['button_text']) ? $this->props['button_text'] : 'Learn more';
+        $slides_to_show = isset($this->props['slides_to_show']) ? (int) $this->props['slides_to_show'] : 3;
+        $slides_to_scroll = isset($this->props['slides_to_scroll']) ? (int) $this->props['slides_to_scroll'] : 1;
+        $auto_play = isset($this->props['auto_play']) ? $this->props['auto_play'] : 'on';
+        $auto_play_speed = isset($this->props['auto_play_speed']) ? (int) $this->props['auto_play_speed'] : 3000;
         
         // Query posts
         $args = array(
@@ -352,6 +374,11 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         );
         
         $query = new WP_Query($args);
+        
+        // Make sure query is a valid WP_Query object to prevent errors
+        if (!is_object($query) || !($query instanceof WP_Query)) {
+            return '<div class="dpc_error">' . esc_html__('Error initializing post query.', 'divi-post-carousel') . '</div>';
+        }
         
         // Start building the output
         $output = '<div class="dpc_post_carousel">';
@@ -396,7 +423,7 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                     $category_object = get_the_terms($post_id, $post_type . '_category');
                 }
                 
-                if (!empty($category_object) && !is_wp_error($category_object)) {
+                if (!empty($category_object) && !is_wp_error($category_object) && isset($category_object[0])) {
                     $category = $category_object[0]->name;
                 }
                 
@@ -471,19 +498,22 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         
         $output .= '</div>'; // End .dpc_post_carousel
         
+        // Generate a unique ID for this carousel
+        $carousel_id = 'dpc_carousel_' . rand(1000, 9999);
+        
         // Enqueue the frontend script with the module ID
         $script = sprintf(
             '<script>
                 jQuery(document).ready(function($) {
-                    $(".dpc_carousel").slick({
+                    $(".dpc_carousel").not(".slick-initialized").slick({
                         dots: true,
                         arrows: true,
                         infinite: true,
                         speed: 500,
-                        slidesToShow: Number($(".dpc_carousel").data("slides-to-show")),
-                        slidesToScroll: Number($(".dpc_carousel").data("slides-to-scroll")),
+                        slidesToShow: Number($(".dpc_carousel").data("slides-to-show")) || 3,
+                        slidesToScroll: Number($(".dpc_carousel").data("slides-to-scroll")) || 1,
                         autoplay: $(".dpc_carousel").data("auto-play") === "on",
-                        autoplaySpeed: Number($(".dpc_carousel").data("auto-play-speed")),
+                        autoplaySpeed: Number($(".dpc_carousel").data("auto-play-speed")) || 3000,
                         appendDots: $(".dpc_dots"),
                         prevArrow: \'<button type="button" class="slick-prev">&#8249;</button>\',
                         nextArrow: \'<button type="button" class="slick-next">&#8250;</button>\',
@@ -512,4 +542,7 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
     }
 }
 
-new Divi_Post_Carousel_Module(); 
+// Initialize the module and register it with Divi
+if (function_exists('et_builder_add_main_elements')) {
+    new Divi_Post_Carousel_Module();
+} 
