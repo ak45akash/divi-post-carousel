@@ -40,8 +40,14 @@ class Divi_Post_Carousel {
      */
     public function __construct() {
         $this->setup_constants();
-        $this->includes();
-        $this->init_hooks();
+        
+        // Only load if Divi theme is active
+        if ($this->is_divi_active()) {
+            $this->includes();
+            $this->init_hooks();
+        } else {
+            add_action('admin_notices', array($this, 'divi_not_active_notice'));
+        }
     }
     
     /**
@@ -60,10 +66,34 @@ class Divi_Post_Carousel {
     }
     
     /**
+     * Check if Divi theme is active
+     */
+    private function is_divi_active() {
+        // Check if the ET_BUILDER_VERSION constant is defined (indicates Divi is active)
+        if (defined('ET_BUILDER_VERSION')) {
+            return true;
+        }
+        
+        // Check if the Divi theme is active
+        $theme = wp_get_theme();
+        if ('Divi' === $theme->get('Name') || 'Divi' === $theme->get('Template')) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Include required files
      */
     private function includes() {
-        require_once DPC_PLUGIN_DIR . 'includes/class-post-carousel-module.php';
+        $module_file = DPC_PLUGIN_DIR . 'includes/class-post-carousel-module.php';
+        
+        if (file_exists($module_file)) {
+            require_once $module_file;
+        } else {
+            add_action('admin_notices', array($this, 'missing_files_notice'));
+        }
     }
     
     /**
@@ -78,7 +108,7 @@ class Divi_Post_Carousel {
      * Register the module
      */
     public function register_module() {
-        if (class_exists('ET_Builder_Module')) {
+        if (class_exists('ET_Builder_Module') && class_exists('Divi_Post_Carousel_Module')) {
             new Divi_Post_Carousel_Module();
         }
     }
@@ -87,18 +117,50 @@ class Divi_Post_Carousel {
      * Enqueue scripts and styles
      */
     public function enqueue_scripts() {
-        wp_enqueue_style('dpc-slick', DPC_PLUGIN_URL . 'assets/css/slick.css', array(), '1.8.1');
-        wp_enqueue_style('dpc-style', DPC_PLUGIN_URL . 'assets/css/divi-post-carousel.css', array(), '1.0.0');
+        // Register styles first
+        wp_register_style('dpc-slick', DPC_PLUGIN_URL . 'assets/css/slick.css', array(), '1.8.1');
+        wp_register_style('dpc-style', DPC_PLUGIN_URL . 'assets/css/divi-post-carousel.css', array(), '1.0.0');
         
-        wp_enqueue_script('dpc-slick', DPC_PLUGIN_URL . 'assets/js/slick.min.js', array('jquery'), '1.8.1', true);
-        wp_enqueue_script('dpc-script', DPC_PLUGIN_URL . 'assets/js/divi-post-carousel.js', array('jquery', 'dpc-slick'), '1.0.0', true);
+        // Register scripts
+        wp_register_script('dpc-slick', DPC_PLUGIN_URL . 'assets/js/slick.min.js', array('jquery'), '1.8.1', true);
+        wp_register_script('dpc-script', DPC_PLUGIN_URL . 'assets/js/divi-post-carousel.js', array('jquery', 'dpc-slick'), '1.0.0', true);
+        
+        // Now enqueue them
+        wp_enqueue_style('dpc-slick');
+        wp_enqueue_style('dpc-style');
+        wp_enqueue_script('dpc-slick');
+        wp_enqueue_script('dpc-script');
+    }
+    
+    /**
+     * Display notice if Divi theme is not active
+     */
+    public function divi_not_active_notice() {
+        ?>
+        <div class="notice notice-error">
+            <p><?php _e('Divi Post Carousel requires the Divi theme to be installed and active.', 'divi-post-carousel'); ?></p>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Display notice if files are missing
+     */
+    public function missing_files_notice() {
+        ?>
+        <div class="notice notice-error">
+            <p><?php _e('Divi Post Carousel: Required files are missing. Please reinstall the plugin.', 'divi-post-carousel'); ?></p>
+        </div>
+        <?php
     }
 }
 
-// Initialize the plugin
+/**
+ * Initialize the plugin
+ */
 function divi_post_carousel_init() {
     return Divi_Post_Carousel::get_instance();
 }
 
 // Start the plugin
-divi_post_carousel_init(); 
+add_action('plugins_loaded', 'divi_post_carousel_init'); 

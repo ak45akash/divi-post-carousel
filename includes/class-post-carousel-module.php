@@ -2,6 +2,8 @@
 /**
  * Post Carousel Module Class
  */
+if (!class_exists('Divi_Post_Carousel_Module') && class_exists('ET_Builder_Module')):
+
 class Divi_Post_Carousel_Module extends ET_Builder_Module {
     
     public function init() {
@@ -353,6 +355,11 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         
         $query = new WP_Query($args);
         
+        // Make sure query is a valid WP_Query object to prevent errors
+        if (!is_object($query) || !($query instanceof WP_Query)) {
+            return '<div class="dpc_error">' . esc_html__('Error initializing post query.', 'divi-post-carousel') . '</div>';
+        }
+        
         // Start building the output
         $output = '<div class="dpc_post_carousel">';
         
@@ -508,4 +515,9 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
     }
 }
 
-new Divi_Post_Carousel_Module(); 
+// Only initialize if we're in the right context
+if (class_exists('ET_Builder_Module')) {
+    new Divi_Post_Carousel_Module();
+}
+
+endif; // End class_exists check 
