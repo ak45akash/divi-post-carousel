@@ -199,6 +199,17 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                 'default'           => 'post',
                 'description'       => esc_html__('Choose the post type to display in the carousel.', 'divi-post-carousel'),
                 'toggle_slug'       => 'main_content',
+                'affects'           => array('category'),
+            ),
+            'category' => array(
+                'label'             => esc_html__('Category', 'divi-post-carousel'),
+                'type'              => 'select',
+                'option_category'   => 'configuration',
+                'options'           => $this->get_categories('post'),
+                'default'           => '',
+                'description'       => esc_html__('Choose a category to display posts from.', 'divi-post-carousel'),
+                'toggle_slug'       => 'main_content',
+                'depends_show_if'   => 'post',
             ),
             'posts_number' => array(
                 'label'             => esc_html__('Number of Posts', 'divi-post-carousel'),
@@ -347,12 +358,52 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
     }
     
     /**
+     * Get categories for a post type
+     */
+    private function get_categories($post_type = 'post') {
+        $options = array('' => esc_html__('All Categories', 'divi-post-carousel'));
+        
+        if ('post' === $post_type) {
+            $categories = get_categories(array('hide_empty' => false));
+            if (!empty($categories) && !is_wp_error($categories)) {
+                foreach ($categories as $category) {
+                    $options[$category->term_id] = $category->name;
+                }
+            }
+        } else {
+            // Try to find a taxonomy for this post type
+            $taxonomies = get_object_taxonomies($post_type, 'objects');
+            if (!empty($taxonomies)) {
+                foreach ($taxonomies as $taxonomy) {
+                    if ($taxonomy->hierarchical) {
+                        $terms = get_terms(array(
+                            'taxonomy' => $taxonomy->name,
+                            'hide_empty' => false,
+                        ));
+                        
+                        if (!empty($terms) && !is_wp_error($terms)) {
+                            foreach ($terms as $term) {
+                                $options[$term->term_id . '|' . $taxonomy->name] = $term->name;
+                            }
+                        }
+                        
+                        break; // Only use the first hierarchical taxonomy
+                    }
+                }
+            }
+        }
+        
+        return $options;
+    }
+    
+    /**
      * Render the module
      */
     public function render($attrs, $content = null, $render_slug) {
         // Get attributes
         $heading = isset($this->props['heading']) ? $this->props['heading'] : '';
         $post_type = isset($this->props['post_type']) ? $this->props['post_type'] : 'post';
+        $category = isset($this->props['category']) ? $this->props['category'] : '';
         $posts_number = isset($this->props['posts_number']) ? (int) $this->props['posts_number'] : 6;
         $show_image = isset($this->props['show_image']) ? $this->props['show_image'] : 'on';
         $show_title = isset($this->props['show_title']) ? $this->props['show_title'] : 'on';
@@ -372,6 +423,24 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
             'posts_per_page' => $posts_number,
             'post_status'    => 'publish',
         );
+        
+        // Add category query if selected
+        if (!empty($category)) {
+            if (strpos($category, '|') !== false) {
+                // For custom post types
+                list($term_id, $taxonomy) = explode('|', $category);
+                $args['tax_query'] = array(
+                    array(
+                        'taxonomy' => $taxonomy,
+                        'field'    => 'term_id',
+                        'terms'    => $term_id,
+                    ),
+                );
+            } else {
+                // For standard posts
+                $args['cat'] = $category;
+            }
+        }
         
         $query = new WP_Query($args);
         
@@ -497,11 +566,20 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         // Generate a unique ID for this carousel
         $carousel_id = 'dpc_carousel_' . rand(1000, 9999);
         
+        // Add custom CSS for font
+        $output .= sprintf(
+            '<style>
+                .dpc_post_carousel {
+                    font-family: "Libre Franklin", sans-serif;
+                }
+            </style>'
+        );
+        
         // Enqueue the frontend script with the module ID
         $script = sprintf(
             '<script>
                 jQuery(document).ready(function($) {
-                    $(".dpc_carousel").slick({
+                    $(".dpc_carousel").not(".slick-initialized").slick({
                         dots: true,
                         arrows: true,
                         infinite: true,
@@ -538,5 +616,7 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
     }
 }
 
-// Initialize the module
-new Divi_Post_Carousel_Module(); 
+// Initialize the module and register it with Divi
+if (function_exists('et_builder_add_main_elements')) {
+    new Divi_Post_Carousel_Module();
+} 

@@ -71,6 +71,9 @@ function dpc_enqueue_scripts() {
     wp_register_style('dpc-slick', DPC_PLUGIN_URL . 'assets/css/slick.css', array(), '1.8.1');
     wp_register_style('dpc-style', DPC_PLUGIN_URL . 'assets/css/divi-post-carousel.css', array(), '1.0.0');
     
+    // Register Google Fonts
+    wp_register_style('dpc-google-fonts', 'https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap', array(), null);
+    
     // Register scripts
     wp_register_script('dpc-slick', DPC_PLUGIN_URL . 'assets/js/slick.min.js', array('jquery'), '1.8.1', true);
     wp_register_script('dpc-script', DPC_PLUGIN_URL . 'assets/js/divi-post-carousel.js', array('jquery', 'dpc-slick'), '1.0.0', true);
@@ -78,6 +81,7 @@ function dpc_enqueue_scripts() {
     // Enqueue them
     wp_enqueue_style('dpc-slick');
     wp_enqueue_style('dpc-style');
+    wp_enqueue_style('dpc-google-fonts');
     wp_enqueue_script('dpc-slick');
     wp_enqueue_script('dpc-script');
 }
@@ -142,6 +146,7 @@ function dpc_render_carousel($atts) {
     // Enqueue required scripts and styles
     wp_enqueue_style('dpc-slick');
     wp_enqueue_style('dpc-style');
+    wp_enqueue_style('dpc-google-fonts');
     wp_enqueue_script('dpc-slick');
     wp_enqueue_script('dpc-script');
     
@@ -149,6 +154,7 @@ function dpc_render_carousel($atts) {
     $attributes = shortcode_atts(array(
         'heading'         => 'Post Carousel',
         'post_type'       => 'post',
+        'category'        => '',
         'posts_number'    => 6,
         'show_image'      => 'on',
         'show_title'      => 'on',
@@ -172,6 +178,24 @@ function dpc_render_carousel($atts) {
         'posts_per_page' => $posts_number,
         'post_status'    => 'publish',
     );
+    
+    // Add category query if set
+    if (!empty($category)) {
+        if (strpos($category, '|') !== false) {
+            // For custom post types
+            list($term_id, $taxonomy) = explode('|', $category);
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => $taxonomy,
+                    'field'    => 'term_id',
+                    'terms'    => $term_id,
+                ),
+            );
+        } else {
+            // For standard posts
+            $args['cat'] = $category;
+        }
+    }
     
     $query = new WP_Query($args);
     
@@ -329,6 +353,13 @@ function dpc_render_carousel($atts) {
         </script>'
     );
     
+    // Add custom CSS for font
+    $output .= '<style>
+        .dpc_post_carousel {
+            font-family: "Libre Franklin", sans-serif;
+        }
+    </style>';
+    
     return $output . $script;
 }
 
@@ -385,13 +416,26 @@ function dpc_shortcode_generator_popup() {
             
             <div class="dpc-field">
                 <label><?php _e('Post Type:', 'divi-post-carousel'); ?></label>
-                <select id="dpc-post-type">
+                <select id="dpc-post-type" class="dpc-post-type-selector">
                     <?php 
                     $post_types = get_post_types(array('public' => true), 'objects');
                     foreach ($post_types as $post_type) {
                         if ($post_type->name !== 'attachment') {
                             echo '<option value="' . esc_attr($post_type->name) . '">' . esc_html($post_type->label) . '</option>';
                         }
+                    }
+                    ?>
+                </select>
+            </div>
+            
+            <div class="dpc-field dpc-categories-field">
+                <label><?php _e('Category:', 'divi-post-carousel'); ?></label>
+                <select id="dpc-category">
+                    <option value=""><?php _e('All Categories', 'divi-post-carousel'); ?></option>
+                    <?php 
+                    $categories = get_categories(array('hide_empty' => false));
+                    foreach ($categories as $category) {
+                        echo '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . '</option>';
                     }
                     ?>
                 </select>
@@ -472,10 +516,54 @@ function dpc_add_shortcode_script() {
                     onclick: function() {
                         jQuery("#dpc-shortcode-generator").show();
                         
+                        // Update categories when post type changes
+                        jQuery("#dpc-post-type").off("change").on("change", function() {
+                            var postType = jQuery(this).val();
+                            if (postType === "post") {
+                                jQuery.ajax({
+                                    url: ajaxurl,
+                                    type: "POST",
+                                    data: {
+                                        action: "dpc_get_categories",
+                                        post_type: postType,
+                                        nonce: "' . wp_create_nonce('dpc_get_categories') . '"
+                                    },
+                                    success: function(response) {
+                                        if (response.success) {
+                                            jQuery("#dpc-category").html(response.data);
+                                            jQuery(".dpc-categories-field").show();
+                                        } else {
+                                            jQuery(".dpc-categories-field").hide();
+                                        }
+                                    }
+                                });
+                            } else {
+                                // Handle custom post types
+                                jQuery.ajax({
+                                    url: ajaxurl,
+                                    type: "POST",
+                                    data: {
+                                        action: "dpc_get_categories",
+                                        post_type: postType,
+                                        nonce: "' . wp_create_nonce('dpc_get_categories') . '"
+                                    },
+                                    success: function(response) {
+                                        if (response.success && response.data !== "") {
+                                            jQuery("#dpc-category").html(response.data);
+                                            jQuery(".dpc-categories-field").show();
+                                        } else {
+                                            jQuery(".dpc-categories-field").hide();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                        
                         // Handle insert button click
                         jQuery("#dpc-insert-shortcode").off("click").on("click", function() {
                             var heading = jQuery("#dpc-heading").val();
                             var postType = jQuery("#dpc-post-type").val();
+                            var category = jQuery("#dpc-category").val();
                             var postsNumber = jQuery("#dpc-posts-number").val();
                             var showImage = jQuery("#dpc-show-image").val();
                             var showTitle = jQuery("#dpc-show-title").val();
@@ -487,6 +575,9 @@ function dpc_add_shortcode_script() {
                             var shortcode = \'[divi_post_carousel\';
                             shortcode += \' heading="\' + heading + \'"\';
                             shortcode += \' post_type="\' + postType + \'"\';
+                            if (category) {
+                                shortcode += \' category="\' + category + \'"\';
+                            }
                             shortcode += \' posts_number="\' + postsNumber + \'"\';
                             shortcode += \' show_image="\' + showImage + \'"\';
                             shortcode += \' show_title="\' + showTitle + \'"\';
@@ -504,6 +595,9 @@ function dpc_add_shortcode_script() {
                         jQuery("#dpc-cancel").off("click").on("click", function() {
                             jQuery("#dpc-shortcode-generator").hide();
                         });
+                        
+                        // Trigger post type change to load categories
+                        jQuery("#dpc-post-type").trigger("change");
                     }
                 });
             });
@@ -531,6 +625,7 @@ function dpc_add_shortcode_script() {
             width: 500px;
             max-width: 90%;
             z-index: 159000;
+            font-family: "Libre Franklin", sans-serif;
         }
         .dpc-popup-content h2 {
             margin-top: 0;
@@ -557,6 +652,56 @@ function dpc_add_shortcode_script() {
         }
     </style>
     <?php
+    
+    // Enqueue Google Fonts in admin
+    wp_enqueue_style('dpc-google-fonts', 'https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&display=swap', array(), null);
+}
+
+/**
+ * Ajax handler to get categories based on post type
+ */
+function dpc_get_categories_ajax() {
+    // Check nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'dpc_get_categories')) {
+        wp_send_json_error('Invalid nonce');
+        return;
+    }
+    
+    $post_type = isset($_POST['post_type']) ? sanitize_text_field($_POST['post_type']) : 'post';
+    $options = '';
+    $options .= '<option value="">' . esc_html__('All Categories', 'divi-post-carousel') . '</option>';
+    
+    if ('post' === $post_type) {
+        $categories = get_categories(array('hide_empty' => false));
+        if (!empty($categories) && !is_wp_error($categories)) {
+            foreach ($categories as $category) {
+                $options .= '<option value="' . esc_attr($category->term_id) . '">' . esc_html($category->name) . '</option>';
+            }
+        }
+    } else {
+        // Try to find a taxonomy for this post type
+        $taxonomies = get_object_taxonomies($post_type, 'objects');
+        if (!empty($taxonomies)) {
+            foreach ($taxonomies as $taxonomy) {
+                if ($taxonomy->hierarchical) {
+                    $terms = get_terms(array(
+                        'taxonomy' => $taxonomy->name,
+                        'hide_empty' => false,
+                    ));
+                    
+                    if (!empty($terms) && !is_wp_error($terms)) {
+                        foreach ($terms as $term) {
+                            $options .= '<option value="' . esc_attr($term->term_id . '|' . $taxonomy->name) . '">' . esc_html($term->name) . '</option>';
+                        }
+                    }
+                    
+                    break; // Only use the first hierarchical taxonomy
+                }
+            }
+        }
+    }
+    
+    wp_send_json_success($options);
 }
 
 /**
@@ -571,6 +716,9 @@ function dpc_init() {
     
     // Register shortcode functionality
     dpc_register_shortcode();
+    
+    // Register AJAX handler for categories
+    add_action('wp_ajax_dpc_get_categories', 'dpc_get_categories_ajax');
     
     // TinyMCE button (only in admin)
     if (is_admin()) {
