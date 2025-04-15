@@ -11,6 +11,7 @@ A custom Divi module that creates beautiful, responsive post carousels for your 
 - Enable/disable autoplay and control autoplay speed
 - Fully responsive on all devices
 - Compatible with Divi Visual Builder
+- Can be used as a shortcode anywhere in your content
 
 ## Installation
 
@@ -21,6 +22,8 @@ A custom Divi module that creates beautiful, responsive post carousels for your 
 
 ## Usage
 
+### Divi Builder Module
+
 1. Edit a page with the Divi Builder
 2. Click the "+" button to add a new module
 3. Search for "Post Carousel" and select it
@@ -29,6 +32,34 @@ A custom Divi module that creates beautiful, responsive post carousels for your 
    - Elements tab: Control which elements to display
    - Design tab: Customize colors, fonts, spacing, etc.
    - Advanced tab: Add custom CSS if needed
+
+### Shortcode Usage
+
+You can also use the post carousel anywhere on your site with the shortcode:
+
+```
+[divi_post_carousel heading="Events" post_type="post" category="51" posts_number="6" slides_to_show="3" auto_play="off"]
+```
+
+#### Available Shortcode Parameters
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `heading` | Title displayed above the carousel | (empty) |
+| `post_type` | Type of posts to display | post |
+| `posts_number` | Number of posts to show | 6 |
+| `category` | Category ID to filter posts | (empty) |
+| `slides_to_show` | Number of slides visible at once | 3 |
+| `slides_to_scroll` | Number of slides to move when navigating | 1 |
+| `auto_play` | Enable auto-scrolling (on/off) | on |
+| `auto_play_speed` | Time between slides in milliseconds | 3000 |
+| `show_image` | Show featured images (on/off) | on |
+| `show_title` | Show post titles (on/off) | on |
+| `show_excerpt` | Show post excerpts (on/off) | on |
+| `excerpt_length` | Character limit for excerpts | 100 |
+| `show_category` | Show category labels (on/off) | on |
+| `show_button` | Show "Learn more" buttons (on/off) | on |
+| `button_text` | Custom text for buttons | Learn more |
 
 ## Customization
 
