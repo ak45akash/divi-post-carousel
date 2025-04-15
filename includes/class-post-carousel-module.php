@@ -380,6 +380,10 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
             return '<div class="dpc_error">' . esc_html__('Error initializing post query.', 'divi-post-carousel') . '</div>';
         }
         
+        // Generate a unique ID for this carousel
+        $carousel_id = 'dpc_carousel_' . mt_rand(1000, 9999) . '_' . uniqid();
+        $dots_id = 'dpc_dots_' . mt_rand(1000, 9999) . '_' . uniqid();
+        
         // Start building the output
         $output = '<div class="dpc_post_carousel">';
         
@@ -389,18 +393,14 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         }
         
         // Start carousel
-        $output .= '<div class="dpc_carousel"';
-        
-        // Add data attributes for slick slider
         $output .= sprintf(
-            ' data-slides-to-show="%1$s" data-slides-to-scroll="%2$s" data-auto-play="%3$s" data-auto-play-speed="%4$s"',
+            '<div id="%5$s" class="dpc_carousel" data-slides-to-show="%1$s" data-slides-to-scroll="%2$s" data-auto-play="%3$s" data-auto-play-speed="%4$s">',
             esc_attr($slides_to_show),
             esc_attr($slides_to_scroll),
             esc_attr($auto_play),
-            esc_attr($auto_play_speed)
+            esc_attr($auto_play_speed),
+            esc_attr($carousel_id)
         );
-        
-        $output .= '>';
         
         // Add slides
         if ($query->have_posts()) {
@@ -493,28 +493,28 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         
         $output .= '</div>'; // End .dpc_carousel
         
-        // Add navigation dots
-        $output .= '<div class="dpc_dots"></div>';
+        // Add navigation dots with a unique ID
+        $output .= sprintf('<div id="%s" class="dpc_dots"></div>', esc_attr($dots_id));
         
         $output .= '</div>'; // End .dpc_post_carousel
-        
-        // Generate a unique ID for this carousel
-        $carousel_id = 'dpc_carousel_' . rand(1000, 9999);
         
         // Enqueue the frontend script with the module ID
         $script = sprintf(
             '<script>
                 jQuery(document).ready(function($) {
-                    $(".dpc_carousel").not(".slick-initialized").slick({
+                    // Add custom styles to handle slick arrows override
+                    $("<style>.slick-slider .slick-arrow { font-size: 0; line-height: 0; }</style>").appendTo("head");
+                    
+                    $("#%5$s").not(".slick-initialized").slick({
                         dots: true,
                         arrows: true,
                         infinite: true,
                         speed: 500,
-                        slidesToShow: Number($(".dpc_carousel").data("slides-to-show")) || 3,
-                        slidesToScroll: Number($(".dpc_carousel").data("slides-to-scroll")) || 1,
-                        autoplay: $(".dpc_carousel").data("auto-play") === "on",
-                        autoplaySpeed: Number($(".dpc_carousel").data("auto-play-speed")) || 3000,
-                        appendDots: $(".dpc_dots"),
+                        slidesToShow: Number($("#%5$s").data("slides-to-show")) || 3,
+                        slidesToScroll: Number($("#%5$s").data("slides-to-scroll")) || 1,
+                        autoplay: $("#%5$s").data("auto-play") === "on",
+                        autoplaySpeed: Number($("#%5$s").data("auto-play-speed")) || 3000,
+                        appendDots: $("#%6$s"),
                         prevArrow: \'<button type="button" class="slick-prev"></button>\',
                         nextArrow: \'<button type="button" class="slick-next"></button>\',
                         responsive: [
@@ -535,7 +535,13 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                         ]
                     });
                 });
-            </script>'
+            </script>',
+            esc_attr($slides_to_show),
+            esc_attr($slides_to_scroll),
+            esc_attr($auto_play),
+            esc_attr($auto_play_speed),
+            esc_js($carousel_id),
+            esc_js($dots_id)
         );
         
         return $output . $script;

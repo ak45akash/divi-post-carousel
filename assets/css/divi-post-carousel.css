@@ -141,24 +141,16 @@
     width: 40px;
     height: 40px;
     line-height: 40px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     text-align: center;
-    font-size: 16px;
+    font-size: 24px;
     color: #333;
-    border: 1px solid #e0e0e0;
+    border: none;
     cursor: pointer;
     z-index: 10;
     transition: all 0.3s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.slick-prev:before,
-.slick-next:before {
-    display: none;
 }
 
 .slick-prev {
@@ -173,28 +165,6 @@
 .slick-next:hover {
     background: #fff;
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Use custom thin arrow characters */
-.slick-prev:after,
-.slick-next:after {
-    content: "";
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-top: 1px solid #555;
-    border-right: 1px solid #555;
-    position: absolute;
-}
-
-.slick-prev:after {
-    transform: rotate(-135deg);
-    right: 14px;
-}
-
-.slick-next:after {
-    transform: rotate(45deg);
-    left: 14px;
 }
 
 /* Dots Styles */

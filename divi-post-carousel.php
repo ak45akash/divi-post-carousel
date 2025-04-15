@@ -182,7 +182,8 @@ function dpc_render_carousel($atts) {
     $query = new WP_Query($args);
     
     // Generate a unique ID for this carousel
-    $carousel_id = 'dpc_carousel_' . rand(1000, 9999);
+    $carousel_id = 'dpc_carousel_' . mt_rand(1000, 9999) . '_' . uniqid();
+    $dots_id = 'dpc_dots_' . mt_rand(1000, 9999) . '_' . uniqid();
     
     // Start building the output
     ob_start();
@@ -192,7 +193,7 @@ function dpc_render_carousel($atts) {
             <h2 class="dpc_heading"><?php echo esc_html($atts['heading']); ?></h2>
         <?php endif; ?>
         
-        <div class="dpc_carousel" 
+        <div id="<?php echo esc_attr($carousel_id); ?>" class="dpc_carousel" 
              data-slides-to-show="<?php echo esc_attr($atts['slides_to_show']); ?>" 
              data-slides-to-scroll="<?php echo esc_attr($atts['slides_to_scroll']); ?>" 
              data-auto-play="<?php echo esc_attr($atts['auto_play']); ?>" 
@@ -268,21 +269,24 @@ function dpc_render_carousel($atts) {
                 <div class="dpc_no_posts"><?php _e('No posts found', 'divi-post-carousel'); ?></div>
             <?php endif; ?>
         </div>
-        <div class="dpc_dots"></div>
+        <div id="<?php echo esc_attr($dots_id); ?>" class="dpc_dots"></div>
     </div>
     
     <script>
         jQuery(document).ready(function($) {
-            $('.dpc_carousel').not('.slick-initialized').slick({
+            // Add custom styles to handle slick arrows override
+            $('<style>.slick-slider .slick-arrow { font-size: 0; line-height: 0; }</style>').appendTo('head');
+            
+            $('#<?php echo esc_js($carousel_id); ?>').not('.slick-initialized').slick({
                 dots: true,
                 arrows: true,
                 infinite: true, 
                 speed: 500,
-                slidesToShow: Number($('.dpc_carousel').data('slides-to-show')) || 3,
-                slidesToScroll: Number($('.dpc_carousel').data('slides-to-scroll')) || 1,
-                autoplay: $('.dpc_carousel').data('auto-play') === 'on',
-                autoplaySpeed: Number($('.dpc_carousel').data('auto-play-speed')) || 3000,
-                appendDots: $('.dpc_dots'),
+                slidesToShow: Number($('#<?php echo esc_js($carousel_id); ?>').data('slides-to-show')) || 3,
+                slidesToScroll: Number($('#<?php echo esc_js($carousel_id); ?>').data('slides-to-scroll')) || 1,
+                autoplay: $('#<?php echo esc_js($carousel_id); ?>').data('auto-play') === 'on',
+                autoplaySpeed: Number($('#<?php echo esc_js($carousel_id); ?>').data('auto-play-speed')) || 3000,
+                appendDots: $('#<?php echo esc_js($dots_id); ?>'),
                 prevArrow: '<button type="button" class="slick-prev"></button>',
                 nextArrow: '<button type="button" class="slick-next"></button>',
                 responsive: [
