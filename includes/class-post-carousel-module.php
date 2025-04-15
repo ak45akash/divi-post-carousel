@@ -17,6 +17,7 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
     
     function __construct() {
         parent::__construct();
+        $this->init();
     }
     
     public function init() {
