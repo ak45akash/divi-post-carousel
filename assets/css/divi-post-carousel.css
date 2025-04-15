@@ -89,7 +89,7 @@
 /* Button Styles */
 .dpc_button {
     display: inline-block;
-    background-color: #2ea3f2;
+    background-color: #254B45;
     color: #fff !important;
     padding: 8px 15px;
     border-radius: 3px;
@@ -103,7 +103,7 @@
 }
 
 .dpc_button:hover {
-    background-color: #0073aa;
+    background-color: #F7941D;
 }
 
 /* Navigation Styles */
@@ -183,7 +183,7 @@
 }
 
 .slick-dots li.slick-active button {
-    background: #2ea3f2;
+    background: #254B45;
 }
 
 /* No Posts Styles */
