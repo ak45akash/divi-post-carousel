@@ -101,15 +101,28 @@ class Divi_Post_Carousel {
      */
     private function init_hooks() {
         add_action('et_builder_ready', array($this, 'register_module'));
+        add_action('et_builder_framework_loaded', array($this, 'load_module'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
     }
     
     /**
-     * Register the module
+     * Register the module with Divi
      */
     public function register_module() {
         if (class_exists('ET_Builder_Module') && class_exists('Divi_Post_Carousel_Module')) {
             new Divi_Post_Carousel_Module();
+        }
+    }
+    
+    /**
+     * Load the module (alternative approach)
+     */
+    public function load_module() {
+        if (class_exists('ET_Builder_Module')) {
+            // The file should already be included, but let's be sure
+            if (!class_exists('Divi_Post_Carousel_Module')) {
+                include_once DPC_PLUGIN_DIR . 'includes/class-post-carousel-module.php';
+            }
         }
     }
     
@@ -163,4 +176,4 @@ function divi_post_carousel_init() {
 }
 
 // Start the plugin
-add_action('plugins_loaded', 'divi_post_carousel_init'); 
+add_action('plugins_loaded', 'divi_post_carousel_init', 9); 

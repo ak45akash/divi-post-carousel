@@ -26,11 +26,19 @@ If you see a "There has been a critical error on this website" message:
 
 If the Post Carousel module isn't appearing in the Divi Builder:
 
-1. **Clear cache**: Clear any caching plugins and browser cache.
+1. **Deactivate and reactivate the plugin**: Sometimes simply deactivating and reactivating the plugin can fix loading issues.
 
-2. **Regenerate Divi roles**: Go to Divi → Theme Options → Builder → Advanced → "Clear all Divi cache" and also try "Regenerate Divi roles".
+2. **Clear Divi cache**: Go to Divi → Theme Options → Builder → Advanced → "Clear all Divi cache" and then try "Regenerate Divi roles".
 
-3. **Check file permissions**: Make sure all plugin files have the correct permissions (folders: 755, files: 644).
+3. **Try searching for "carousel"**: In some cases, the module might be loaded but not visible in the initial list. Try searching for "carousel" in the module search box.
+
+4. **Check for conflicting plugins**: Disable other custom Divi modules temporarily to check for conflicts.
+
+5. **Fix permission issues**: Make sure all plugin files have the correct permissions (folders: 755, files: 644).
+
+6. **Check WordPress version**: Ensure you're running WordPress 5.0 or higher.
+
+7. **Refresh the Visual Builder**: If using the Visual Builder, try refreshing the page or switching to the Backend Builder and back.
 
 ### 3. Carousel Not Working Properly
 

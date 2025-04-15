@@ -2,15 +2,22 @@
 /**
  * Post Carousel Module Class
  */
-if (!class_exists('Divi_Post_Carousel_Module') && class_exists('ET_Builder_Module')):
+if (!class_exists('Divi_Post_Carousel_Module')):
 
 class Divi_Post_Carousel_Module extends ET_Builder_Module {
+    
+    function __construct() {
+        parent::__construct();
+        $this->init();
+    }
     
     public function init() {
         $this->name       = esc_html__('Post Carousel', 'divi-post-carousel');
         $this->plural     = esc_html__('Post Carousels', 'divi-post-carousel');
         $this->slug       = 'dpc_post_carousel';
         $this->vb_support = 'on';
+        $this->icon               = 'n';
+        $this->icon_font_family   = 'ETmodules';
         
         $this->main_css_element = '%%order_class%%.dpc_post_carousel';
         
@@ -513,11 +520,6 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
         
         return $output . $script;
     }
-}
-
-// Only initialize if we're in the right context
-if (class_exists('ET_Builder_Module')) {
-    new Divi_Post_Carousel_Module();
 }
 
 endif; // End class_exists check 
