@@ -8,9 +8,11 @@
 .dpc_heading {
     text-align: center;
     margin-bottom: 30px;
-    color: #333;
+    color: #254B45;
     font-family: "Libre Franklin", sans-serif;
     font-weight: 600;
+    font-size: 2.2rem;
+    line-height: 1.2rem;
 }
 
 .dpc_carousel {
@@ -56,6 +58,7 @@
     overflow: hidden;
     border-radius: 5px 5px 0 0;
     height: 200px; /* Fixed image height */
+    max-height: 275px;
 }
 
 .dpc_image img {
@@ -81,6 +84,7 @@
     border-radius: 3px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: 600;
 }
 
 /* Title Styles */
@@ -95,13 +99,17 @@
     color: #254B45;
     text-decoration: none;
     transition: color 0.3s ease;
+    font-family: "Libre Franklin", sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    text-align: left;
+    margin-bottom: 18px;
 }
-
 
 /* Content Styles */
 .dpc_content {
     padding: 0 15px;
-    margin-bottom: 15px;
+    margin-bottom: 36px;
     color: #254B45;
     height: 75px; /* Fixed content height */
     overflow: hidden;
@@ -109,6 +117,10 @@
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     flex: 1 1 auto;
+    font-family: "Libre Franklin", sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    text-align: left;
 }
 
 /* Button Styles */
@@ -121,11 +133,12 @@
     text-decoration: none;
     margin-left: 15px;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 500;
     letter-spacing: 1px;
     align-self: flex-start;
     margin-top: auto;
+    font-family: larken, 'sans-serif';
 }
 
 .dpc_button:hover {
@@ -141,30 +154,66 @@
     width: 40px;
     height: 40px;
     line-height: 40px;
-    background: rgba(255, 255, 255, 0.8);
+    color: #254B45;
+    background: transparent;
     border-radius: 50%;
     text-align: center;
-    font-size: 24px;
-    color: #333;
+    font-size: 48px;
     border: none;
     cursor: pointer;
     z-index: 10;
     transition: all 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.slick-prev {
-    left: -20px;
-}
-
-.slick-next {
-    right: -20px;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
 }
 
 .slick-prev:hover,
-.slick-next:hover {
-    background: #fff;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+.slick-next:hover,
+.slick-prev:focus,
+.slick-next:focus {
+    color: #254B45;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    display: none !important;
+    content: none !important;
+}
+
+.slick-prev {
+    left: -40px;
+}
+
+.slick-next {
+    right: -40px;
+}
+
+/* Use custom thin arrow characters */
+.slick-prev:after,
+.slick-next:after {
+    content: "";
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-top: 2px solid #254B45;
+    border-right: 2px solid #254B45;
+    position: absolute;
+}
+
+.slick-prev:after {
+    transform: rotate(-135deg);
+    right: 12px;
+}
+
+.slick-next:after {
+    transform: rotate(45deg);
+    left: 12px;
 }
 
 /* Dots Styles */
@@ -224,11 +273,11 @@
 /* Responsive Styles */
 @media screen and (max-width: 980px) {
     .slick-prev {
-        left: -15px;
+        left: -25px;
     }
     
     .slick-next {
-        right: -15px;
+        right: -25px;
     }
     
     .dpc_title {
@@ -250,15 +299,15 @@
         width: 30px;
         height: 30px;
         line-height: 30px;
-        font-size: 20px;
+        font-size: 36px;
     }
     
     .slick-prev {
-        left: -10px;
+        left: -15px;
     }
     
     .slick-next {
-        right: -10px;
+        right: -15px;
     }
     
     .dpc_title {
