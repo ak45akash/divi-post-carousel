@@ -515,8 +515,8 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                         autoplay: $(".dpc_carousel").data("auto-play") === "on",
                         autoplaySpeed: Number($(".dpc_carousel").data("auto-play-speed")) || 3000,
                         appendDots: $(".dpc_dots"),
-                        prevArrow: \'<button type="button" class="slick-prev">&#8249;</button>\',
-                        nextArrow: \'<button type="button" class="slick-next">&#8250;</button>\',
+                        prevArrow: \'<button type="button" class="slick-prev"></button>\',
+                        nextArrow: \'<button type="button" class="slick-next"></button>\',
                         responsive: [
                             {
                                 breakpoint: 980,
