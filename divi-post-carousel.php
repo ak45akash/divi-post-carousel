@@ -259,6 +259,9 @@ function dpc_render_carousel($atts) {
                 );
             }
             
+            // Start slide content container for better layout
+            $output .= '<div class="dpc_slide_content">';
+            
             // Add category
             if ('on' === $show_category && !empty($category)) {
                 $output .= sprintf(
@@ -298,6 +301,7 @@ function dpc_render_carousel($atts) {
                 );
             }
             
+            $output .= '</div>'; // End .dpc_slide_content
             $output .= '</div>'; // End .dpc_slide
         }
         

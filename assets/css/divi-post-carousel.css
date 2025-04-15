@@ -27,8 +27,26 @@
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
     margin: 15px;
-    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     transition: box-shadow 0.3s ease;
+}
+
+.slick-track {
+    display: flex !important;
+}
+
+.slick-slide {
+    height: inherit !important;
+    display: flex !important;
+}
+
+.slick-slide > div {
+    display: flex;
+    flex: 1 0 auto;
+    height: 100%;
+    width: 100%;
 }
 
 .dpc_slide:hover {
@@ -40,11 +58,13 @@
     position: relative;
     overflow: hidden;
     border-radius: 5px 5px 0 0;
+    height: 200px;
 }
 
 .dpc_image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
 }
@@ -60,7 +80,7 @@
     color: #F7941D;
     font-size: 12px;
     padding: 5px 15px;
-    margin: 30px 0 5px;
+    margin: 15px 0 5px;
     border-radius: 3px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -86,6 +106,8 @@
     font-weight: 600;
     font-size: 18px;
     line-height: 1.4;
+    height: 50px;
+    overflow: hidden;
 }
 
 .dpc_title a {
@@ -101,9 +123,11 @@
 /* Content Styles */
 .dpc_content {
     padding: 0 15px;
-    margin-bottom: 40px;
-    /* color: #666; */
+    margin-bottom: 15px;
     color: #254B45;
+    height: 70px;
+    overflow: hidden;
+    flex-grow: 1;
 }
 
 /* Button Styles */
@@ -114,16 +138,26 @@
     padding: 12px 20px;
     border-radius: 6px;
     text-decoration: none;
-    margin-left: 15px;
+    margin: 10px 0 20px 15px;
     transition: all 0.3s ease;
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 1px;
     font-family: "Libre Franklin", sans-serif;
+    align-self: flex-start;
+    margin-top: auto;
 }
 
 .dpc_button:hover {
     background-color: #F7941D;
+}
+
+/* Slide Content Container */
+.dpc_slide_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding-bottom: 15px;
 }
 
 /* Navigation Styles */
@@ -164,7 +198,7 @@
 /* Dots Styles */
 .dpc_dots {
     text-align: center;
-    margin-top: 60px;
+    margin-top: 30px;
 }
 
 .slick-dots {
@@ -224,6 +258,18 @@
     .slick-next {
         right: -15px;
     }
+    
+    .dpc_image {
+        height: 180px;
+    }
+    
+    .dpc_title {
+        height: 45px;
+    }
+    
+    .dpc_content {
+        height: 65px;
+    }
 }
 
 @media screen and (max-width: 767px) {
@@ -245,5 +291,19 @@
     
     .slick-next {
         right: -10px;
+    }
+    
+    .dpc_image {
+        height: 160px;
+    }
+    
+    .dpc_title {
+        font-size: 16px;
+        height: 40px;
+    }
+    
+    .dpc_content {
+        height: 60px;
+        margin-bottom: 10px;
     }
 } 
