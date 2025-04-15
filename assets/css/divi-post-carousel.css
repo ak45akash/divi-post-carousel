@@ -170,19 +170,21 @@
     font-size: 0;
     line-height: 0;
     display: block;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     cursor: pointer;
     color: transparent;
-    border: 0;
+    border: 1px solid #ccc;
     outline: none;
-    background: #ddd;
+    background: transparent;
     padding: 0;
+    transition: all 0.3s ease;
 }
 
 .slick-dots li.slick-active button {
     background: #254B45;
+    border-color: #254B45;
 }
 
 /* No Posts Styles */

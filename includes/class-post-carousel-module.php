@@ -291,7 +291,7 @@ class Divi_Post_Carousel_Module extends ET_Builder_Module {
                     'on'  => esc_html__('Yes', 'divi-post-carousel'),
                     'off' => esc_html__('No', 'divi-post-carousel'),
                 ),
-                'default'           => 'on',
+                'default'           => 'off',
                 'toggle_slug'       => 'layout',
             ),
             'auto_play_speed' => array(
