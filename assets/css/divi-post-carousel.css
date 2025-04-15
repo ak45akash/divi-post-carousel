@@ -23,12 +23,11 @@
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
     margin: 15px;
     padding-bottom: 20px;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.3s ease;
 }
 
 .dpc_slide:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transform: translateY(-5px);
 }
 
 /* Image Styles */
