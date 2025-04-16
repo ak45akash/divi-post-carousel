@@ -32,8 +32,10 @@
                         autoplay: $(this).data('auto-play') === 'on',
                         autoplaySpeed: Number($(this).data('auto-play-speed')),
                         appendDots: $(this).next('.dpc_dots'),
-                        prevArrow: '<button type="button" class="slick-prev">&#8249;</button>',
-                        nextArrow: '<button type="button" class="slick-next">&#8250;</button>',
+                        // prevArrow: '<button type="button" class="slick-prev">&#8249;</button>',
+                        // nextArrow: '<button type="button" class="slick-next">&#8250;</button>',
+                        prevArrow: '<button type="button" class="slick-prev"><</button>',
+                        nextArrow: '<button type="button" class="slick-next">></button>',
                         responsive: [
                             {
                                 breakpoint: 980,
