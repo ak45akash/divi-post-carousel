@@ -462,8 +462,9 @@ class DPCM_Post_Carousel extends ET_Builder_Module {
         $show_dots       = $this->props['show_dots'];
         $infinite        = $this->props['infinite'];
         
-        // Generate unique ID for this carousel
-        $carousel_id = 'dpc_' . mt_rand(100000, 999999);
+        // Generate unique IDs for this carousel and dots container
+        $carousel_id = 'dpc_carousel_' . mt_rand(1000, 9999) . '_' . uniqid();
+        $dots_id = 'dpc_dots_' . mt_rand(1000, 9999) . '_' . uniqid();
         
         // Query arguments
         $args = array(
@@ -492,84 +493,109 @@ class DPCM_Post_Carousel extends ET_Builder_Module {
                     <h2 class="dpc_heading"><?php echo esc_html($heading); ?></h2>
                 <?php endif; ?>
                 
-                <?php
-                // Data attributes for slick initialization
-                $data_attributes = sprintf(
-                    'data-slides-to-show="%1$s" data-slides-to-scroll="%2$s" data-autoplay="%3$s" data-autoplay-speed="%4$s" data-arrows="%5$s" data-dots="%6$s" data-infinite="%7$s"',
-                    esc_attr($slides_to_show),
-                    esc_attr($slides_to_scroll),
-                    $autoplay === 'on' ? 'true' : 'false',
-                    esc_attr($autoplay_speed),
-                    $show_arrows === 'on' ? 'true' : 'false',
-                    $show_dots === 'on' ? 'true' : 'false',
-                    $infinite === 'on' ? 'true' : 'false'
-                );
-                ?>
-                
-                <div id="<?php echo esc_attr($carousel_id); ?>" class="dpc_carousel" <?php echo $data_attributes; ?>>
-                    <?php while ($query->have_posts()) : $query->the_post(); ?>
+                <div id="<?php echo esc_attr($carousel_id); ?>" class="dpc_carousel" 
+                     data-slides-to-show="<?php echo esc_attr($slides_to_show); ?>" 
+                     data-slides-to-scroll="<?php echo esc_attr($slides_to_scroll); ?>" 
+                     data-auto-play="<?php echo $autoplay === 'on' ? 'on' : 'off'; ?>" 
+                     data-auto-play-speed="<?php echo esc_attr($autoplay_speed); ?>">
+                    
+                    <?php while ($query->have_posts()) : $query->the_post(); 
+                        $post_id = get_the_ID();
+                        $post_link = get_permalink();
+                        $post_title = get_the_title();
+                        
+                        // Get post category
+                        $category = '';
+                        $category_object = array();
+                        
+                        if ('post' === $post_type) {
+                            $category_object = get_the_category();
+                        } elseif (taxonomy_exists('category_' . $post_type)) {
+                            $category_object = get_the_terms($post_id, 'category_' . $post_type);
+                        } elseif (taxonomy_exists($post_type . '_category')) {
+                            $category_object = get_the_terms($post_id, $post_type . '_category');
+                        }
+                        
+                        if (!empty($category_object) && !is_wp_error($category_object) && isset($category_object[0])) {
+                            $category = $category_object[0]->name;
+                        }
+                    ?>
                         <div class="dpc_slide">
                             <?php if ($show_thumbnail === 'on' && has_post_thumbnail()) : ?>
                                 <div class="dpc_image">
-                                    <a href="<?php the_permalink(); ?>">
+                                    <a href="<?php echo esc_url($post_link); ?>">
                                         <?php the_post_thumbnail('medium'); ?>
                                     </a>
                                 </div>
                             <?php endif; ?>
                             
-                            <div class="dpc_content_wrap">
-                                <?php if ($show_date === 'on' || $show_author === 'on' || $show_category === 'on') : ?>
-                                    <div class="dpc_meta">
-                                        <?php if ($show_date === 'on') : ?>
-                                            <span class="dpc_date"><?php echo get_the_date(); ?></span>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($show_author === 'on') : ?>
-                                            <span class="dpc_author">
-                                                <?php echo esc_html__('By ', 'divi-post-carousel') . get_the_author(); ?>
-                                            </span>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($show_category === 'on' && $post_type === 'post') : ?>
-                                            <span class="dpc_category">
-                                                <?php
-                                                $categories = get_the_category();
-                                                if (!empty($categories)) {
-                                                    echo esc_html($categories[0]->name);
-                                                }
-                                                ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($show_title === 'on') : ?>
-                                    <h3 class="dpc_title">
-                                        <a href="<?php the_permalink(); ?>">
-                                            <?php the_title(); ?>
-                                        </a>
-                                    </h3>
-                                <?php endif; ?>
-                                
-                                <?php if ($show_excerpt === 'on') : ?>
-                                    <div class="dpc_excerpt">
-                                        <?php
-                                        $excerpt = get_the_excerpt();
-                                        echo wp_trim_words($excerpt, intval($excerpt_length), '...');
-                                        ?>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <?php if ($show_read_more === 'on') : ?>
-                                    <a href="<?php the_permalink(); ?>" class="dpc_button">
-                                        <?php echo esc_html($read_more_text); ?>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
+                            <?php if ($show_category === 'on' && !empty($category)) : ?>
+                                <div class="dpc_category"><?php echo esc_html($category); ?></div>
+                            <?php endif; ?>
+                            
+                            <?php if ($show_title === 'on') : ?>
+                                <div class="dpc_title">
+                                    <a href="<?php echo esc_url($post_link); ?>"><?php echo esc_html($post_title); ?></a>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($show_excerpt === 'on') : ?>
+                                <div class="dpc_content">
+                                    <?php
+                                    $excerpt = get_the_excerpt();
+                                    if (strlen($excerpt) > $excerpt_length) {
+                                        $excerpt = substr($excerpt, 0, $excerpt_length) . '...';
+                                    }
+                                    echo wp_kses_post($excerpt);
+                                    ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if ($show_read_more === 'on') : ?>
+                                <a href="<?php echo esc_url($post_link); ?>" class="dpc_button">
+                                    <?php echo esc_html($read_more_text); ?>
+                                </a>
+                            <?php endif; ?>
                         </div>
                     <?php endwhile; ?>
                 </div>
+                
+                <div id="<?php echo esc_attr($dots_id); ?>" class="dpc_dots"></div>
             </div>
+            
+            <script>
+                jQuery(document).ready(function($) {
+                    $('#<?php echo esc_js($carousel_id); ?>').not('.slick-initialized').slick({
+                        dots: true,
+                        arrows: true,
+                        infinite: true, 
+                        speed: 500,
+                        slidesToShow: Number($('#<?php echo esc_js($carousel_id); ?>').data('slides-to-show')) || 3,
+                        slidesToScroll: Number($('#<?php echo esc_js($carousel_id); ?>').data('slides-to-scroll')) || 1,
+                        autoplay: $('#<?php echo esc_js($carousel_id); ?>').data('auto-play') === 'on',
+                        autoplaySpeed: Number($('#<?php echo esc_js($carousel_id); ?>').data('auto-play-speed')) || 3000,
+                        appendDots: $('#<?php echo esc_js($dots_id); ?>'),
+                        prevArrow: '<button type="button" class="slick-prev"><</button>',
+                        nextArrow: '<button type="button" class="slick-next">></button>',
+                        responsive: [
+                            {
+                                breakpoint: 980,
+                                settings: {
+                                    slidesToShow: 2,
+                                    slidesToScroll: 1
+                                }
+                            },
+                            {
+                                breakpoint: 767,
+                                settings: {
+                                    slidesToShow: 1,
+                                    slidesToScroll: 1
+                                }
+                            }
+                        ]
+                    });
+                });
+            </script>
             <?php
         else :
             ?>
