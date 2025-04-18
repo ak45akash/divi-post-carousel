@@ -370,7 +370,7 @@ class DPCM_Post_Carousel extends ET_Builder_Module {
                     'on'  => esc_html__('Yes', 'divi-post-carousel'),
                     'off' => esc_html__('No', 'divi-post-carousel'),
                 ),
-                'default'         => 'on',
+                'default'         => 'off',
                 'toggle_slug'     => 'carousel_settings',
             ),
             'autoplay_speed' => array(
