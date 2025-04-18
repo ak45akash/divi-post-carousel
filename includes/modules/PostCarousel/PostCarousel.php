@@ -583,6 +583,4 @@ class DPCM_Post_Carousel extends ET_Builder_Module {
         
         return ob_get_clean();
     }
-}
-
-new DPCM_Post_Carousel; 
+} 

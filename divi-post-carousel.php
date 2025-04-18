@@ -104,8 +104,16 @@ function dpc_enqueue_scripts() {
  * Load the module if Divi is active
  */
 function dpc_load_module() {
+    // Register the module with Divi
+    add_action('et_builder_ready', 'dpc_register_modules');
+}
+
+/**
+ * Register modules with Divi Builder
+ */
+function dpc_register_modules() {
     // Check if ET_Builder_Module can be loaded
-    if (!dpc_load_builder_module()) {
+    if (!class_exists('ET_Builder_Module')) {
         return;
     }
     
@@ -113,6 +121,7 @@ function dpc_load_module() {
     $module_file = DPC_PLUGIN_DIR . 'includes/modules/PostCarousel/PostCarousel.php';
     if (file_exists($module_file)) {
         require_once $module_file;
+        new DPCM_Post_Carousel(); // Initialize the module
     } else {
         add_action('admin_notices', 'dpc_missing_files_notice');
     }
