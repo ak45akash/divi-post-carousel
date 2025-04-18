@@ -110,7 +110,7 @@ function dpc_load_module() {
     }
     
     // Include the module file
-    $module_file = DPC_PLUGIN_DIR . 'includes/class-post-carousel-module.php';
+    $module_file = DPC_PLUGIN_DIR . 'includes/modules/PostCarousel/PostCarousel.php';
     if (file_exists($module_file)) {
         require_once $module_file;
     } else {
